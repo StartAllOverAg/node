@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>轮播图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        img {
+            width: 700px;
+            height: 300px;
+            float: left;
+        }
+
+        #outer {
+            width: 700px;
+            height: 300px;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid blue;
+        }
+
+        .box {
+            width: 3500px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        /*        .abc{
+                    width:50px;
+                    height: 50px;
+                    position: absolute;
+                    top:0;
+                    left: 0;
+                    background: blue;
+                }*/
+        #oUl{
+            position: absolute;
+            bottom:5px;
+            left: 50%;
+            margin-left: -30px;
+        }
+        #oUl li{
+            width:10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            margin-left: 10px;
+            float: left;
+            cursor: pointer;
+        }
+        a{
+            font-size: 25px;
+            background: rgba(2,2,2,.3);
+            width:20px;
+            height: 50px;
+            position: absolute;
+            top:50%;
+            margin-top: -25px;
+            line-height: 50px;
+            text-decoration: none;
+            text-align: center;
+            color:#fff;
+            display: none;
+        }
+        #oLeft{
+            left:5px;
+        }
+        #oRight{
+            right: 5px;
+        }
+        #oUl .cur{
+            background: #00fffa;
+        }
+    </style>
+</head>
+<body>
+<div class="abc">
+
+</div>
+
+<div id="outer">
+    <div class="box">
+        <img src="img/1.png">
+        <img src="img/2.png">
+        <img src="img/3.png">
+        <img src="img/4.png">
+        <img src="img/1.png">
+    </div>
+    <ul id="oUl">
+        <li class="cur"></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+    <a href="javascript:;" id="oLeft"> < </a>
+    <a href="javascript:;" id="oRight"> > </a>
+</div>
+</body>
+
+
+<script>
+    var outer = document.getElementById("outer");
+    var abc = document.getElementsByClassName("box")[0];
+    var oLis = document.getElementsByTagName("li");
+    var oA = document.getElementsByTagName("a");
+    var stop = false;
+
+    var index = 0;
+
+    function dey() {
+        if (index === 5) {
+            abc.style.left = 0 + "";
+            index = 1;
+        }
+
+        if(index < 0){
+            abc.style.left = "-2800px";
+            index = 3;
+        }
+
+        move({
+            curEle: abc,
+            style: {
+                left: -index * 700
+            },
+            t: 1000
+        });
+        cur(index);
+    }
+
+    setInterval(function () {
+        if(!stop){
+            index++;
+            dey();
+        }
+    }, 2000);
+
+    function move(ops) {
+        var curEle = ops.curEle;
+
+        var style = ops.style;
+        var t = ops.t;
+        var time = 0; //记录时间
+
+        var begin = {};//起始位置
+        var change = {};//移动位置
+        var val = {};//平均的速度
+
+        for (var key in style) {
+            begin[key] = parseFloat(window.getComputedStyle(curEle, null)["left"]); //起始的位置
+            change[key] = style[key] - begin[key];//要移动的距离
+            val[key] = change[key] / t;
+//            console.log(begin, change, val);
+        }
+        clearInterval(curEle.timer);
+
+        curEle.timer = setInterval(function () {
+            time += 15;
+            if (time >= t) {
+                for (var key in style) {
+                    //移动的距离 + 起始的位置
+                    curEle.style[key] = begin[key] + change[key] + "px";
+                }
+                clearInterval(curEle.timer);
+                return;
+            }
+            for (var key in style) {
+                //起始的位置 + 当前的位置对应的距离
+//                console.log(begin[key] , val[key] * time);
+                curEle.style[key] = begin[key] + val[key] * time + "px";
+            }
+        }, 15)
+    }
+    //焦点
+    function cur(n) {//1 2 3 4
+
+        for(var i = 0; i < oLis.length; i++){
+            if(i !== n){
+                oLis[i].className = "";
+            }else{
+                oLis[i].className = "cur";
+            }
+            if(n===4){
+                oLis[0].className = "cur"
+            }
+        }
+    }
+
+    oA[0].onclick = function () {
+        index--;
+        dey();
+    };
+
+    oA[1].onclick = function () {
+        index++;
+        dey();
+    };
+
+    outer.onmouseover = function () {
+        oA[0].style.display = 'block';
+        oA[1].style.display = 'block';
+        stop = true;
+    };
+
+    outer.onmouseout = function () {
+        oA[0].style.display = 'none';
+        oA[1].style.display = 'none';
+        stop = false;
+    };
+
+    for(var i = 0; i < oLis.length; i++){
+        oLis[i].index = i;
+        oLis[i].onclick = function () {
+            console.log(this.index);
+            index = this.index;
+            dey();
+        }
+    }
+
+
+</script>
+</html>
